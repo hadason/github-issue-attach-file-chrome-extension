@@ -1,0 +1,16 @@
+{
+  "manifest_version": 2,
+
+  "name": "Attach Files to Github Issues",
+  "description": "This extension enables support for attaching files to Github Issues using a third party storage service",
+  "version": "1.0",
+  "content_scripts": [
+    {
+        "matches": [
+            "https://github.com/*/issues/*", 
+            "https://*.github.com/*/issues/*"
+            ],
+        "js": ["github-attach.js"]
+    }
+  ]
+}
