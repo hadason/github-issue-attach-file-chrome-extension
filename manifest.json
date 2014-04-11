@@ -4,13 +4,30 @@
   "name": "Attach Files to Github Issues",
   "description": "This extension enables support for attaching files to Github Issues using a third party storage service",
   "version": "1.0",
+  "background": {
+    "page": "background.html",
+    "persistent": false
+  },
+  "content_security_policy": "script-src 'self' https://apis.google.com; object-src 'self'",
   "content_scripts": [
     {
         "matches": [
             "https://github.com/*/issues/*", 
             "https://*.github.com/*/issues/*"
             ],
-        "js": ["github-attach.js"]
+        "js": [
+            "client.js",
+            "github-attach.js"
+            ]
     }
-  ]
+  ],
+  "permissions": [
+    "identity"
+  ],
+  "oauth2": {
+    "client_id": "906330843772-nhiplvsrlevpe4hrf3gfnlqk9v24c8kf.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/drive"
+    ]
+  }
 }

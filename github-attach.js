@@ -1,3 +1,5 @@
+//TODO: Do nothing if the user is not signed in to Github!
+
 var comments = document.getElementsByClassName('comment');
 for (var commentIndex = 0; commentIndex < comments.length; commentIndex++) {
     addUploadButton(comments[commentIndex], 'minibutton');
@@ -20,9 +22,30 @@ function addUploadButton(commentDiv, buttonClass) {
     uploadInput = document.createElement("input");
     uploadInput.setAttribute("style", "display:none");
     uploadInput.type = "file";
-    uploadInput.addEventListener('change', function() {
-        var comment = 'Implement file upload (' + uploadInput.value + ')';
-        commentTextArea.value = commentTextArea.value ? commentTextArea.value + '\n' + comment : comment;
+    uploadInput.addEventListener('change', function(event) {
+        //TODO: Move authentication to extension configuration
+        chrome.runtime.sendMessage({Action: "GetToken"}, function(response)
+        {
+            var file = event.target.files[0];
+
+            var reader = new FileReader();
+            reader.readAsBinaryString(file);
+            reader.onload = function(e) {
+              var contentType = file.type || 'application/octet-stream';
+              var base64Data = btoa(reader.result);
+            
+                var fileData = {
+                    Data: base64Data,
+                    Type: contentType,
+                    Name: file.name
+                    };
+                chrome.runtime.sendMessage({Action: "UploadFile", File: fileData}, function(response) {
+                    commentTextArea.value = response.Result;
+                  });
+            };
+        });
+        /* var comment = 'Implement file upload (' + uploadInput.value + ')';
+        commentTextArea.value = commentTextArea.value ? commentTextArea.value + '\n' + comment : comment; */
     });
     buttonContainer.insertBefore(uploadInput, buttonContainer.firstChild);
     
@@ -42,4 +65,11 @@ function createUploadButton(buttonClass) {
     button.value = "Upload File...";
     button.setAttribute("class", buttonClass);
     return button;
+}
+
+function get(url, callback) {
+    var x = new XMLHttpRequest();
+    x.onload = x.onerror = function() { callback(x.responseText); };
+    x.open('GET', url);
+    x.send();
 }
